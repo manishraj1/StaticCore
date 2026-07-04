@@ -1,6 +1,6 @@
 # Where Should Requests Wait? An Empirical Study of KV-Cache Admission Control in vLLM V1
 
-**Draft v0.1 — [Author], July 2026**
+**Draft v0.1 — [Manish Raj Vangari], July 2026**
 
 ## Abstract
 
