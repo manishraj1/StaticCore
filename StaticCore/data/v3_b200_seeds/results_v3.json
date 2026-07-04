@@ -1,0 +1,11 @@
+[
+{"arm":"ISL_only_control","seed":0,"vllm":"0.24.0","osl_hook_env":false,"watermark_set":0.0,"throughput_tok_s":392.95,"preemptions":2142,"preemption_source":"vllm:num_preemptions","total_tokens":208000,"elapsed_s":529.33},
+{"arm":"OSL_reserve_treatment","seed":0,"vllm":"0.24.0","osl_hook_env":true,"watermark_set":0.0,"throughput_tok_s":367.61,"preemptions":752,"preemption_source":"vllm:num_preemptions","total_tokens":208000,"elapsed_s":565.82},
+{"arm":"Watermark_baseline","seed":0,"vllm":"0.24.0","osl_hook_env":false,"watermark_set":0.05,"throughput_tok_s":374.71,"preemptions":1439,"preemption_source":"vllm:num_preemptions","total_tokens":208000,"elapsed_s":555.1},
+{"arm":"ISL_only_control","seed":1,"vllm":"0.24.0","osl_hook_env":false,"watermark_set":0.0,"throughput_tok_s":380.91,"preemptions":2142,"preemption_source":"vllm:num_preemptions","total_tokens":208000,"elapsed_s":546.06},
+{"arm":"OSL_reserve_treatment","seed":1,"vllm":"0.24.0","osl_hook_env":true,"watermark_set":0.0,"throughput_tok_s":361.24,"preemptions":739,"preemption_source":"vllm:num_preemptions","total_tokens":208000,"elapsed_s":575.79},
+{"arm":"Watermark_baseline","seed":1,"vllm":"0.24.0","osl_hook_env":false,"watermark_set":0.05,"throughput_tok_s":374.52,"preemptions":1461,"preemption_source":"vllm:num_preemptions","total_tokens":208000,"elapsed_s":555.38},
+{"arm":"ISL_only_control","seed":2,"vllm":"0.24.0","osl_hook_env":false,"watermark_set":0.0,"throughput_tok_s":385.18,"preemptions":2126,"preemption_source":"vllm:num_preemptions","total_tokens":208000,"elapsed_s":540.0},
+{"arm":"OSL_reserve_treatment","seed":2,"vllm":"0.24.0","osl_hook_env":true,"watermark_set":0.0,"throughput_tok_s":365.51,"preemptions":776,"preemption_source":"vllm:num_preemptions","total_tokens":208000,"elapsed_s":569.06},
+{"arm":"Watermark_baseline","seed":2,"vllm":"0.24.0","osl_hook_env":false,"watermark_set":0.05,"throughput_tok_s":378.71,"preemptions":1435,"preemption_source":"vllm:num_preemptions","total_tokens":208000,"elapsed_s":549.24}
+]
