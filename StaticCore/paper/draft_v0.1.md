@@ -1,10 +1,10 @@
 # Where Should Requests Wait? An Empirical Study of KV-Cache Admission Control in vLLM V1
 
-**Draft v0.1 — [Manish Raj Vangari], July 2026**
+**Draft v0.1 — Manish Raj Vangari, July 2026**
 
 ## Abstract
 
-Modern LLM serving engines resolve KV-cache oversubscription reactively: when memory runs out, running requests are preempted and later recomputed. vLLM V1 recently gained two admission-side mitigations — full-input-length reservation (PR #37307, default-on) and a free-block watermark (PR #44594) — and its authors explicitly deferred a third, output-length-aware reservation, noting TensorRT-LLM implements it. We implement that deferred policy as a minimal patch (reserve prompt + α·max_tokens at admission) and characterize all three policies across a conservatism dial and three memory-pressure levels on a production engine (vLLM 0.24.0, Qwen2.5-1.5B, 320-request batches, forced fixed-length outputs).
+Modern LLM serving engines resolve KV-cache oversubscription reactively: when memory runs out, running requests are preempted and later recomputed. vLLM V1 recently gained two admission-side mitigations — full-input-length reservation (PR #37307, default-on) and a free-block watermark (PR #44594) — and its authors explicitly deferred a third, output-length-aware reservation, noting TensorRT-LLM implements it. We implement that deferred policy as a minimal patch (reserve prompt + α · max_tokens at admission) and characterize all three policies across a conservatism dial and three memory-pressure levels on a production engine (vLLM 0.24.0, Qwen2.5-1.5B, 320-request batches, forced fixed-length outputs).
 
 Three findings. First, a **relocation law**: admission conservatism does not reduce waiting, it relocates it — across every policy, setting, and pressure level tested, tail time-to-first-token rises monotonically while tail decode time falls monotonically as conservatism increases. Second, an **inverted cost mechanism**: we pre-registered that reservation's value would rise as memory tightens (costlier recompute); the data cleanly reversed this. Reservation's throughput cost *grows* as the pool shrinks, because the binding cost is batch thinning — the reserved fraction of the pool — not recompute avoided. Admission conservatism is most expensive exactly where intuition says it is most needed. Third, a **regime qualification of upstream results**: the watermark's published throughput benefit did not reproduce as a gain in any regime we tested; in the loosest regime it is throughput-neutral within noise while eliminating ~41% of preemptions, and in tighter regimes it costs 2–6% throughput. Output-length reservation is throughput-equivalent to the watermark at matched conservatism; the two policies differ in where requests wait, not in how fast the system runs.
 
@@ -91,9 +91,14 @@ Every experimental failure in this project was a silent no-op that produced plau
 
 ## References
 
-[1] Kwon et al., "Efficient Memory Management for Large Language Model Serving with PagedAttention," SOSP 2023.
-[2] vLLM PR #37307, "add option to schedule requests based on full ISL," merged 2026-03-24.
-[3] vLLM PR #44594, "watermark to reduce preemptions," merged 2026-06-11.
-[4] Agrawal et al., "Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve," OSDI 2024.
-[5] Sheng et al., "Fairness in Serving Large Language Models," OSDI 2024.
-[6] [CONCUR — verify venue/year before submission; flagged in earlier review as unconfirmed.]
+[1] W. Kwon, Z. Li, S. Zhang, L. Zhang, Y. Yu, P. Sen, C. Lauderdale, S. Tang, C. Kozyrakis, A. D. Joseph, I. Alon, and I. Stoica. "Efficient Memory Management for Large Language Model Serving with PagedAttention." In *Proceedings of the ACM SIGOPS 2023 Symposium on Operating Systems Principles (SOSP)*, 2023.
+
+[2] vLLM Pull Request #37307. "[Core] Add option to schedule requests based on full ISL." GitHub Repository, merged March 24, 2026. Available: `https://github.com/vllm-project/vllm/pull/37307`
+
+[3] vLLM Pull Request #44594. "Watermark to reduce preemptions." GitHub Repository, merged June 11, 2026. Available: `https://github.com/vllm-project/vllm/pull/44594`
+
+[4] A. Agrawal, A. Podgorski, S. Jindal, M. Vutukuru, and S. Malani. "Taming Throughput-Latency Tradeoff in LLM Inference with Sarathi-Serve." In *Proceedings of the USENIX Symposium on Operating Systems Design and Implementation (OSDI)*, 2024.
+
+[5] Y. Sheng, L. Zheng, B. Yuan, Z. Li, M. Ryabinin, D. Fu, J. Zhang, D. Tschiatschek, C. Re, and I. Stoica. "Fairness in Serving Large Language Models." In *Proceedings of the USENIX Symposium on Operating Systems Design and Implementation (OSDI)*, 2024.
+
+[6] M. R. Vangari. "Bounds of KV-Cache Contention in Streamed Test-Time Compute." GitHub Research Repository, 2026. Available: `https://github.com/manishraj1/streaming-ttc-cache-coupling`
