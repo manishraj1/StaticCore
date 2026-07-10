@@ -6,7 +6,7 @@
 
 Minimal patch, defensive evaluation harness, raw experimental data, and a
 verification script for the empirical note **"Where Should Requests Wait?"**
-(draft in [`paper/draft_v0.1.md`](paper/draft_v0.1.md)).
+(draft in [`paper/draft_v0.1.md`](StaticCore/paper/draft_v0.1.md)).
 
 vLLM V1 resolves KV-cache oversubscription reactively (preempt + recompute)
 and recently gained two admission-side mitigations: full-input-length
