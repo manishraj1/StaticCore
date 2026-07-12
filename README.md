@@ -111,7 +111,7 @@ the paper argues the conclusions should invert as context length grows, so
 nothing here extrapolates to long-context serving. Batch arrivals (admission
 delay measures queue position, not open-loop TTFT). Homogeneous forced
 output lengths, which neutralize OSL's information advantage. Consumer-GPU
-session drift (~2–4.5%), mitigated by in-session controls.
+session drift (approx 2–4.5%), mitigated by in-session controls.
 
 ## Citation
 
