@@ -2,12 +2,6 @@
 """
 verify_and_summarize.py — recompute every aggregate published in the README
 and paper draft directly from data/*.json, and assert them.
-
-If this script exits 0, every number in the README's tables is derivable
-from the raw records in this repository. If any assertion fails, either the
-data or the prose is wrong — fix whichever one is lying.
-
-Usage:  python scripts/verify_and_summarize.py
 """
 
 import json
@@ -60,8 +54,7 @@ def main():
     ]:
         failures += not check(f"v5 {cfg} mean tok/s", mean(tp(v5, "cfg", cfg)), tp_want, 0.01)
         pes = pe(v5, "cfg", cfg)
-        failures += not check(f"v5 {cfg} preemptions (exact, both seeds)",
-                              mean(pes), pe_want, 0)
+        failures += not check(f"v5 {cfg} preemptions (exact, both seeds)", mean(pes), pe_want, 0)
         assert max(pes) == min(pes), f"v5 {cfg}: preemption seed spread nonzero"
 
     # ---- v6 pressure ratios: paper section 3.2 table ----
@@ -96,24 +89,40 @@ def main():
             agg.append((mean([x["preemptions"] for x in rs]),
                         mean([x["ttft_p99"] for x in rs]),
                         mean([x["decode_p99"] for x in rs]), cfg))
-        agg.sort(reverse=True)  # most permissive (most preemptions) first
+        agg.sort(reverse=True)
         ttfts = [a[1] for a in agg]
         decs = [a[2] for a in agg]
         mono_ttft = all(ttfts[i] <= ttfts[i + 1] for i in range(len(ttfts) - 1))
         mono_dec = all(decs[i] >= decs[i + 1] for i in range(len(decs) - 1))
-        print(f"{'OK ' if (mono_ttft and mono_dec) else 'FAIL'} {label}: "
-              f"ttft_p99 rising={mono_ttft}, decode_p99 falling={mono_dec}")
+        print(f"{'OK ' if (mono_ttft and mono_dec) else 'FAIL'} {label}: ttft_p99 rising={mono_ttft}, decode_p99 falling={mono_dec}")
         failures += not (mono_ttft and mono_dec)
+
+    # ---- v6: b300 per-family double monotonicity (wm & osl) ----
+    print("\n== v6: b300 per-family double monotonicity (wm & osl) ==")
+    b300_rows = [r for r in v6 if r["blocks"] == 300]
+    
+    def fam(rows_):
+        rows_ = sorted(rows_, key=lambda r: -r["preemptions"])
+        up   = all(rows_[i]["ttft_p99"]  <= rows_[i+1]["ttft_p99"]  for i in range(len(rows_)-1))
+        down = all(rows_[i]["decode_p99"] >= rows_[i+1]["decode_p99"] for i in range(len(rows_)-1))
+        return up and down
+
+    ctrl = [r for r in b300_rows if r["watermark"] == 0 and r["alpha"] == 0]
+    wm   = ctrl + [r for r in b300_rows if r["watermark"] > 0]
+    osl  = ctrl + [r for r in b300_rows if r["alpha"] > 0]
+
+    ok = fam(wm) and fam(osl)
+    print(f"{'OK ' if ok else 'FAIL'} b300 per-family double monotonicity (wm & osl)")
+    if not ok: 
+        failures += 1
 
     # ---- v7 b300 confirmation: section 3.3 ----
     print("\n== v7: b300 confirmation (3 seeds, one session) ==")
     failures += not check("v7 ctrl mean tok/s", mean(tp(v7, "cfg", "ctrl_b300")), 528.38, 0.01)
     failures += not check("v7 wm0.05 mean tok/s", mean(tp(v7, "cfg", "wm0.05_b300")), 523.74, 0.01)
     failures += not check("v7 osl0.5 mean tok/s", mean(tp(v7, "cfg", "osl0.5_b300")), 525.48, 0.01)
-    failures += not check("v7 wm0.05/ctrl ratio", mean(tp(v7, "cfg", "wm0.05_b300")) /
-                          mean(tp(v7, "cfg", "ctrl_b300")), 0.991, 0.001)
-    failures += not check("v7 osl0.5/ctrl ratio", mean(tp(v7, "cfg", "osl0.5_b300")) /
-                          mean(tp(v7, "cfg", "ctrl_b300")), 0.994, 0.001)
+    failures += not check("v7 wm0.05/ctrl ratio", mean(tp(v7, "cfg", "wm0.05_b300")) / mean(tp(v7, "cfg", "ctrl_b300")), 0.991, 0.001)
+    failures += not check("v7 osl0.5/ctrl ratio", mean(tp(v7, "cfg", "osl0.5_b300")) / mean(tp(v7, "cfg", "ctrl_b300")), 0.994, 0.001)
     wm_red = 1 - mean(pe(v7, "cfg", "wm0.05_b300")) / mean(pe(v7, "cfg", "ctrl_b300"))
     failures += not check("v7 wm0.05 preemption reduction", wm_red, 0.41, 0.01)
 
